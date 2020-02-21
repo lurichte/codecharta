@@ -32,6 +32,8 @@ export class CodeMapHelper {
 			removeNumberOfCharactersFromStart = 2
 		} else if (toTransform.startsWith("/")) {
 			removeNumberOfCharactersFromStart = 1
+		} else {
+			return toTransform
 		}
 		return toTransform.substring(removeNumberOfCharactersFromStart)
 	}
