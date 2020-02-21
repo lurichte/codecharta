@@ -1,9 +1,11 @@
 import { FileValidator } from "./util/fileValidator"
-import { AttributeTypes, CCFile, NameDataPair, BlacklistType, BlacklistItem } from "./codeCharta.model"
+import { AttributeTypes, BlacklistItem, BlacklistType, CCFile, CodeMapNode, NameDataPair } from "./codeCharta.model"
 import _ from "lodash"
 import { NodeDecorator } from "./util/nodeDecorator"
 import { StoreService } from "./state/store.service"
 import { addFile, setSingle } from "./state/store/files/files.actions"
+import { CodeMapHelper } from "./util/codeMapHelper"
+import * as d3 from "d3"
 
 export class CodeChartaService {
 	public static ROOT_NAME = "root"
@@ -30,6 +32,8 @@ export class CodeChartaService {
 	}
 
 	private getCCFile(fileName: string, fileContent: any): CCFile {
+		this.setIsBlacklistedAttribute(fileContent.nodes[0], fileContent.blacklist)
+
 		return {
 			fileMeta: {
 				fileName: fileName,
@@ -45,6 +49,20 @@ export class CodeChartaService {
 				}
 			},
 			map: fileContent.nodes[0]
+		}
+	}
+
+	private setIsBlacklistedAttribute(map: CodeMapNode, blacklist: BlacklistItem[] = []) {
+		if (blacklist.length > 0) {
+			d3.hierarchy<CodeMapNode>(map)
+				.leaves()
+				.map(x => {
+					if (CodeMapHelper.isBlacklisted(x.data, blacklist, BlacklistType.exclude)) {
+						x.data.isBlacklisted = BlacklistType.exclude
+					} else if (CodeMapHelper.isBlacklisted(x.data, blacklist, BlacklistType.flatten)) {
+						x.data.isBlacklisted = BlacklistType.flatten
+					}
+				})
 		}
 	}
 

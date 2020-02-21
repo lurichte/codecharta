@@ -1,4 +1,4 @@
-import { FilesAction, FilesSelectionActions, NewFilesImportedActions, setFiles } from "./files.actions"
+import { FilesAction, FilesSelectionActions, NewFilesImportedActions, NodeActions, setFiles } from "./files.actions"
 import { Files } from "../../../model/files"
 
 export default function files(state: Files = setFiles().payload, action: FilesAction): Files {
@@ -41,6 +41,10 @@ export default function files(state: Files = setFiles().payload, action: FilesAc
 		}
 		case FilesSelectionActions.SET_MULTIPLE_BY_NAMES: {
 			state.setMultipleByNames(action.payload)
+			return state
+		}
+		case NodeActions.BLACKLIST_NODE: {
+			state.blacklistNode(action.payload.path, action.payload.blacklistType)
 			return state
 		}
 		default:

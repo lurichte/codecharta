@@ -1,5 +1,5 @@
 import "./searchBar.component.scss"
-import { BlacklistType, BlacklistItem } from "../../codeCharta.model"
+import { BlacklistType, BlacklistItem, CodeMapNode } from "../../codeCharta.model"
 import { IRootScopeService } from "angular"
 import { StoreService } from "../../state/store.service"
 import { setSearchPattern } from "../../state/store/dynamicSettings/searchPattern/searchPattern.actions"
@@ -7,6 +7,10 @@ import _ from "lodash"
 import { BlacklistService, BlacklistSubscriber } from "../../state/store/fileSettings/blacklist/blacklist.service"
 import { addBlacklistItem } from "../../state/store/fileSettings/blacklist/blacklist.actions"
 import { SearchPatternService, SearchPatternSubscriber } from "../../state/store/dynamicSettings/searchPattern/searchPattern.service"
+import * as d3 from "d3"
+import { blacklistNode } from "../../state/store/files/files.actions"
+import { CodeMapHelper } from "../../util/codeMapHelper"
+import ignore from "ignore"
 
 export class SearchBarController implements BlacklistSubscriber, SearchPatternSubscriber {
 	private static DEBOUNCE_TIME = 400
@@ -46,6 +50,27 @@ export class SearchBarController implements BlacklistSubscriber, SearchPatternSu
 
 	public onClickBlacklistPattern(blacklistType: BlacklistType) {
 		this.storeService.dispatch(addBlacklistItem({ path: this._viewModel.searchPattern, type: blacklistType }))
+
+		let allPaths = []
+		const ig = ignore().add(CodeMapHelper.transformPath(this._viewModel.searchPattern))
+
+		this.storeService
+			.getState()
+			.files.getVisibleFileStates()
+			.forEach(file => {
+				allPaths.push(...d3.hierarchy<CodeMapNode>(file.file.map).leaves())
+			})
+
+		allPaths = allPaths.map(file => {
+			return CodeMapHelper.transformPath(file.file.map.path)
+		})
+
+		allPaths.forEach(file => {
+			if (ig.ignores(file.path)) {
+				this.storeService.dispatch(blacklistNode(file.path, blacklistType))
+			}
+		})
+
 		this.resetSearchPattern()
 	}
 

@@ -59,6 +59,7 @@ export interface CodeMapNode {
 	deltas?: {
 		[key: string]: number
 	}
+	isBlacklisted?: BlacklistType
 }
 
 export enum NodeType {

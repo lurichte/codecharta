@@ -1,5 +1,6 @@
-import { CCFile, FileSelectionState, FileState } from "../codeCharta.model"
+import { BlacklistType, CCFile, CodeMapNode, FileSelectionState, FileState } from "../codeCharta.model"
 const clone = require("rfdc")()
+import * as d3 from "d3"
 
 export class Files {
 	constructor(private files: FileState[] = []) {}
@@ -72,6 +73,18 @@ export class Files {
 
 	public setMultiple(multipleFiles: CCFile[]) {
 		this.setMultipleByNames(multipleFiles.map(file => file.fileMeta.fileName))
+	}
+
+	public blacklistNode(path: string, blacklistType: BlacklistType) {
+		this.files.forEach(file => {
+			d3.hierarchy<CodeMapNode>(file.file.map)
+				.leaves()
+				.map(elem => {
+					if (elem.data.path === path) {
+						elem.data.isBlacklisted = blacklistType
+					}
+				})
+		})
 	}
 
 	public fileStatesAvailable(): boolean {

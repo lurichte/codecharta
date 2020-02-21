@@ -145,6 +145,7 @@ export class NodeContextMenuController implements ShowNodeContextMenuSubscriber,
 	public excludeNode() {
 		this.onHideNodeContextMenu()
 		this.storeService.dispatch(addBlacklistItem({ path: this._viewModel.contextMenuBuilding.path, type: BlacklistType.exclude }))
+		//this.storeService.dispatch(blacklistNode(this._viewModel.contextMenuBuilding.path, BlacklistType.exclude))
 	}
 
 	public nodeIsFolder() {

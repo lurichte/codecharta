@@ -1,5 +1,5 @@
 import { Files } from "../../../model/files"
-import { CCAction, CCFile } from "../../../codeCharta.model"
+import { BlacklistType, CCAction, CCFile } from "../../../codeCharta.model"
 
 export enum FilesSelectionActions {
 	SET_SINGLE = "SET_SINGLE",
@@ -15,6 +15,10 @@ export enum NewFilesImportedActions {
 	SET_FILES = "SET_FILES",
 	ADD_FILE = "ADD_FILE",
 	RESET_FILES = "RESET_FILES"
+}
+
+export enum NodeActions {
+	BLACKLIST_NODE = "BLACKLIST_ NODE"
 }
 
 export interface SetFilesAction extends CCAction {
@@ -65,6 +69,10 @@ export interface ResetSelectionAction extends CCAction {
 	type: FilesSelectionActions.RESET_SELECTION
 }
 
+export interface BlacklistNodeAction extends CCAction {
+	type: NodeActions.BLACKLIST_NODE
+}
+
 export type FilesAction =
 	| SetFilesAction
 	| ResetFilesAction
@@ -76,6 +84,7 @@ export type FilesAction =
 	| SetMultipleByNamesAction
 	| SetDeltaAction
 	| SetDeltaByNamesAction
+	| BlacklistNodeAction
 
 export function setFiles(files: Files = defaultFiles): SetFilesAction {
 	return {
@@ -142,6 +151,13 @@ export function setDeltaByNames(referenceFileName: string, comparisonFileName: s
 	return {
 		type: FilesSelectionActions.SET_DELTA_BY_NAMES,
 		payload: { referenceFileName, comparisonFileName }
+	}
+}
+
+export function blacklistNode(path: string, blacklistType: BlacklistType): BlacklistNodeAction {
+	return {
+		type: NodeActions.BLACKLIST_NODE,
+		payload: { path, blacklistType }
 	}
 }
 
