@@ -45,7 +45,7 @@ export class CodeChartaService {
 					edges: fileContent.edges || [],
 					attributeTypes: this.getAttributeTypes(fileContent.attributeTypes),
 					blacklist: this.potentiallyUpdateBlacklistTypes(fileContent.blacklist || []),
-					markedPackages: []
+					markedPackages: fileContent.markedPackages || []
 				}
 			},
 			map: fileContent.nodes[0]

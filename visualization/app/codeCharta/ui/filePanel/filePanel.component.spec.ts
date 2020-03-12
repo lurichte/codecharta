@@ -37,15 +37,17 @@ describe("filePanelController", () => {
 		storeService.dispatch(setSingle(TEST_DELTA_MAP_A))
 	}
 
-	it("should subscribe to FilesService on construction", () => {
-		FilesService.subscribe = jest.fn()
+	describe("constructor", () => {
+		it("should subscribe to FilesService", () => {
+			FilesService.subscribe = jest.fn()
 
-		buildController()
+			buildController()
 
-		expect(FilesService.subscribe).toHaveBeenCalledWith($rootScope, filePanelController)
+			expect(FilesService.subscribe).toHaveBeenCalledWith($rootScope, filePanelController)
+		})
 	})
 
-	describe("onFilesChanged", () => {
+	describe("onFilesSelectionChanged", () => {
 		it("should update viewModel with new fileStates", () => {
 			filePanelController.onFilesSelectionChanged(storeService.getState().files)
 
@@ -218,10 +220,12 @@ describe("filePanelController", () => {
 		it("should should set the viewModel mode to multiple and deselect all files", () => {
 			storeService.dispatch(setMultiple([TEST_DELTA_MAP_A]))
 			filePanelController.onFilesSelectionChanged(storeService.getState().files)
+			storeService.dispatch = jest.fn()
 
 			filePanelController.selectZeroPartialFiles()
 
-			expect(storeService.getState().files.getVisibleFileStates().length).toBe(0)
+			expect(filePanelController["_viewModel"].selectedFileNames.partial).toHaveLength(0)
+			expect(storeService.dispatch).not.toHaveBeenCalled()
 		})
 	})
 

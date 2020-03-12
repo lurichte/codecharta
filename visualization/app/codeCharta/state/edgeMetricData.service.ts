@@ -1,4 +1,4 @@
-import { MetricData, BlacklistItem, Edge, BlacklistType, CodeMapNode, EdgeMetricCount, FileSelectionState } from "../codeCharta.model"
+import { MetricData, BlacklistItem, Edge, BlacklistType, CodeMapNode, EdgeMetricCount } from "../codeCharta.model"
 import { IRootScopeService } from "angular"
 import { CodeMapHelper } from "../util/codeMapHelper"
 import { HierarchyNode } from "d3"
@@ -81,7 +81,7 @@ export class EdgeMetricDataService implements FilesSelectionSubscriber, Blacklis
 	}
 
 	private calculateMetrics(): MetricData[] {
-		if (this.storeService.getState().files.getVisibleFileStates().length <= 0) {
+		if (!this.storeService.getState().files.fileStatesAvailable()) {
 			return []
 		} else {
 			const hashMap = this.calculateEdgeMetricData()
@@ -94,12 +94,11 @@ export class EdgeMetricDataService implements FilesSelectionSubscriber, Blacklis
 		const pathsPerFileState = this.storeService
 			.getState()
 			.files.getVisibleFileStates()
-			.filter(x => x.selectedAs != FileSelectionState.None)
 			.map(fileState => CodeMapHelper.getAllPaths(fileState.file.map))
 		const allFilePaths: string[] = [].concat(...pathsPerFileState)
 		this.storeService
 			.getState()
-			.files.getFiles()
+			.files.getVisibleFileStates()
 			.forEach(fileState => {
 				fileState.file.settings.fileSettings.edges.forEach(edge => {
 					if (this.bothNodesAssociatedAreVisible(edge, allFilePaths)) {

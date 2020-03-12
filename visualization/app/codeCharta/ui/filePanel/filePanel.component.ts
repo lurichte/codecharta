@@ -40,7 +40,7 @@ export class FilePanelController implements FilesSelectionSubscriber {
 				reference: null,
 				comparison: null
 			},
-			partial: null
+			partial: []
 		},
 		pictogramFirstFileColor: null,
 		pictogramUpperColor: null,
@@ -60,6 +60,11 @@ export class FilePanelController implements FilesSelectionSubscriber {
 		this.setPictogramColor()
 		this.updateSelectedFileNamesInViewModel()
 		this.lastRenderState = this._viewModel.renderState
+	}
+
+	public onPartialSelectionClosed() {
+		this._viewModel.files = this.storeService.getState().files
+		this.updateSelectedFileNamesInViewModel()
 	}
 
 	private setPictogramColor() {
@@ -105,7 +110,11 @@ export class FilePanelController implements FilesSelectionSubscriber {
 	}
 
 	public onPartialFilesChange(partialFileNames: string[]) {
-		this.storeService.dispatch(setMultipleByNames(partialFileNames))
+		if (partialFileNames.length > 0) {
+			this.storeService.dispatch(setMultipleByNames(partialFileNames))
+		} else {
+			this._viewModel.selectedFileNames.partial = partialFileNames
+		}
 	}
 
 	public onSingleStateSelected() {
@@ -145,7 +154,7 @@ export class FilePanelController implements FilesSelectionSubscriber {
 			return this._viewModel.selectedFileNames.single
 		} else if (this.lastRenderState === FileSelectionState.Partial) {
 			const visibleFileStates = this._viewModel.files.getVisibleFileStates()
-			if (visibleFileStates.length > 0) {
+			if (this._viewModel.files.fileStatesAvailable()) {
 				return visibleFileStates[0].file.fileMeta.fileName
 			} else {
 				return this._viewModel.files.getFiles()[0].file.fileMeta.fileName
